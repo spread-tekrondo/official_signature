@@ -42,7 +42,9 @@
             color: #34495e; /* Darker text for labels */
             font-size: 0.95em;
         }
-        input[type="text"] {
+        input[type="text"],
+        input[type="mail"],
+        input[type="tel"] {
             width: calc(100% - 24px); /* Account for padding */
             padding: 12px;
             margin-bottom: 20px;
@@ -53,7 +55,9 @@
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
             box-sizing: border-box;
         }
-        input[type="text"]:focus {
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus{
             border-color: #3498db; /* Blue border on focus */
             box-shadow: 0 0 8px rgba(52, 152, 219, 0.2); /* Light blue shadow on focus */
             outline: none; /* Remove default outline */
