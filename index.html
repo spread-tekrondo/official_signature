@@ -63,6 +63,19 @@
             outline: none; /* Remove default outline */
         }
 
+        /* Validation feedback styles */
+        .error-message {
+            color: #e74c3c; /* Red color for error messages */
+            font-size: 0.85em;
+            margin-top: -15px; /* Adjust to sit closer to the input */
+            margin-bottom: 15px;
+            display: none; /* Hidden by default */
+        }
+        input.invalid {
+            border-color: #e74c3c; /* Red border for invalid input */
+            box-shadow: 0 0 8px rgba(231, 76, 60, 0.2); /* Red shadow for invalid input */
+        }
+
         /* Button styling */
         button {
             display: inline-block; /* Allow buttons to sit side-by-side */
@@ -184,23 +197,26 @@
         <div class="input-section">
             <label for="userName">Your Name:</label>
             <input type="text" id="userName" placeholder="e.g., Jane Doe" required>
+            <div class="error-message" id="userNameError"></div>
 
             <label for="userTitle">Your Title:</label>
             <input type="text" id="userTitle" placeholder="e.g., Senior Software Engineer" required>
+            <div class="error-message" id="userTitleError"></div>
 
             <label for="userNumber">Your Phone Number:</label>
             <input type="tel" id="userNumber" placeholder="e.g., +49 1234 5678901" required>
+            <div class="error-message" id="userNumberError"></div>
 
             <label for="userEmail">Your Email Address:</label>
-            <input type="email" id="userEmail" v placeholder="e.g., your.name@spread.ai" required>
+            <input type="email" id="userEmail" placeholder="e.g., your.name@spread.ai" required>
+            <div class="error-message" id="userEmailError"></div>
 
-            <button onclick="generateSignature()">Generate Signature</button>
+            <button onclick="validateAndGenerateSignature()">Generate Signature</button>
         </div>
 
         <h2>Signature Preview:</h2>
         <div class="signature-preview" id="signaturePreview">
-            <!-- The generated email signature will appear here -->
-        </div>
+            </div>
 
         <h2>Copy Signature HTML:</h2>
         <textarea id="signatureHtml" readonly placeholder="Your HTML signature will appear here."></textarea>
@@ -208,6 +224,79 @@
     </div>
 
     <script>
+        // Function to validate input fields
+        function validateInput(inputElement, errorMessageElement, validationFn, errorMessage) {
+            const value = inputElement.value.trim();
+            let isValid = true;
+
+            if (inputElement.hasAttribute('required') && value === '') {
+                isValid = false;
+                errorMessageElement.textContent = 'This field is required.';
+            } else if (validationFn && !validationFn(value)) {
+                isValid = false;
+                errorMessageElement.textContent = errorMessage;
+            }
+
+            if (!isValid) {
+                inputElement.classList.add('invalid');
+                errorMessageElement.style.display = 'block';
+            } else {
+                inputElement.classList.remove('invalid');
+                errorMessageElement.style.display = 'none';
+            }
+            return isValid;
+        }
+
+        // Validation functions
+        function isValidEmail(email) {
+            // Basic email regex for demonstration. More robust regex might be needed for production.
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function isValidPhoneNumber(phoneNumber) {
+            // Allows numbers, spaces, +, -, and parentheses. Basic check for demonstration.
+            return /^[\d\s\-\+\(\)]+$/.test(phoneNumber) && phoneNumber.length > 5;
+        }
+
+        // Function to validate all inputs and then generate the signature
+        function validateAndGenerateSignature() {
+            let allValid = true;
+
+            // Validate Name
+            const userNameInput = document.getElementById('userName');
+            const userNameError = document.getElementById('userNameError');
+            if (!validateInput(userNameInput, userNameError)) {
+                allValid = false;
+            }
+
+            // Validate Title
+            const userTitleInput = document.getElementById('userTitle');
+            const userTitleError = document.getElementById('userTitleError');
+            if (!validateInput(userTitleInput, userTitleError)) {
+                allValid = false;
+            }
+
+            // Validate Phone Number
+            const userNumberInput = document.getElementById('userNumber');
+            const userNumberError = document.getElementById('userNumberError');
+            if (!validateInput(userNumberInput, userNumberError, isValidPhoneNumber, 'Please enter a valid phone number.')) {
+                allValid = false;
+            }
+
+            // Validate Email
+            const userEmailInput = document.getElementById('userEmail');
+            const userEmailError = document.getElementById('userEmailError');
+            if (!validateInput(userEmailInput, userEmailError, isValidEmail, 'Please enter a valid email address.')) {
+                allValid = false;
+            }
+
+            if (allValid) {
+                generateSignature();
+            } else {
+                showMessageBox('Please correct the errors in the form.', 'error');
+            }
+        }
+
         // Function to generate the email signature based on user inputs
         function generateSignature() {
             // Get values from input fields
@@ -304,9 +393,27 @@
             }, 3000);
         }
 
+        // Attach validation to input blur events
+        document.addEventListener('DOMContentLoaded', () => {
+            const userNameInput = document.getElementById('userName');
+            const userNameError = document.getElementById('userNameError');
+            userNameInput.addEventListener('blur', () => validateInput(userNameInput, userNameError));
 
-        // Generate the signature with default values when the page loads
-        document.addEventListener('DOMContentLoaded', generateSignature);
+            const userTitleInput = document.getElementById('userTitle');
+            const userTitleError = document.getElementById('userTitleError');
+            userTitleInput.addEventListener('blur', () => validateInput(userTitleInput, userTitleError));
+
+            const userNumberInput = document.getElementById('userNumber');
+            const userNumberError = document.getElementById('userNumberError');
+            userNumberInput.addEventListener('blur', () => validateInput(userNumberInput, userNumberError, isValidPhoneNumber, 'Please enter a valid phone number.'));
+
+            const userEmailInput = document.getElementById('userEmail');
+            const userEmailError = document.getElementById('userEmailError');
+            userEmailInput.addEventListener('blur', () => validateInput(userEmailInput, userEmailError, isValidEmail, 'Please enter a valid email address.'));
+
+            // Generate the signature with default values when the page loads
+            validateAndGenerateSignature();
+        });
     </script>
 </body>
 </html>
