@@ -203,8 +203,8 @@
             <input type="text" id="userTitle" placeholder="e.g., Senior Software Engineer" required>
             <div class="error-message" id="userTitleError"></div>
 
-            <label for="userNumber">Your Phone Number (Optional):</label>
-            <input type="tel" id="userNumber" placeholder="e.g., +49 1234 5678901">
+            <label for="userNumber">Your Phone Number:</label>
+            <input type="tel" id="userNumber" placeholder="e.g., +49 1234 5678901" required>
             <div class="error-message" id="userNumberError"></div>
 
             <label for="userEmail">Your Email Address:</label>
@@ -216,8 +216,7 @@
 
         <h2>Signature Preview:</h2>
         <div class="signature-preview" id="signaturePreview">
-            <!-- The generated email signature will appear here -->
-        </div>
+            </div>
 
         <h2>Copy Signature HTML:</h2>
         <textarea id="signatureHtml" readonly placeholder="Your HTML signature will appear here."></textarea>
@@ -226,17 +225,14 @@
 
     <script>
         // Function to validate input fields
-        function validateInput(inputElement, errorMessageElement, validationFn = null, errorMessage = '') {
+        function validateInput(inputElement, errorMessageElement, validationFn, errorMessage) {
             const value = inputElement.value.trim();
             let isValid = true;
 
-            // Check if the field is required AND empty
             if (inputElement.hasAttribute('required') && value === '') {
                 isValid = false;
                 errorMessageElement.textContent = 'This field is required.';
-            } 
-            // If the field is NOT empty AND a validation function is provided AND it fails validation
-            else if (value !== '' && validationFn && !validationFn(value)) {
+            } else if (validationFn && !validationFn(value)) {
                 isValid = false;
                 errorMessageElement.textContent = errorMessage;
             }
@@ -258,8 +254,8 @@
         }
 
         function isValidPhoneNumber(phoneNumber) {
-            // Allows numbers, spaces, +, -, and parentheses. Requires at least 6 digits.
-            return /^[\d\s\-\+\(\)]{6,}$/.test(phoneNumber);
+            // Allows numbers, spaces, +, -, and parentheses. Basic check for demonstration.
+            return /^[\d\s\-\+\(\)]+$/.test(phoneNumber) && phoneNumber.length > 5;
         }
 
         // Function to validate all inputs and then generate the signature
@@ -280,12 +276,10 @@
                 allValid = false;
             }
 
-            // Validate Phone Number (Optional: only validate if a value is present)
+            // Validate Phone Number
             const userNumberInput = document.getElementById('userNumber');
             const userNumberError = document.getElementById('userNumberError');
-            // No 'required' check here, as it's handled by `validateInput` if no 'required' attribute is present.
-            // `validateInput` will apply `isValidPhoneNumber` only if a value is entered.
-            if (!validateInput(userNumberInput, userNumberError, isValidPhoneNumber, 'Please enter a valid phone number (at least 6 digits, can contain +, -, spaces, parentheses).')) {
+            if (!validateInput(userNumberInput, userNumberError, isValidPhoneNumber, 'Please enter a valid phone number.')) {
                 allValid = false;
             }
 
@@ -306,19 +300,14 @@
         // Function to generate the email signature based on user inputs
         function generateSignature() {
             // Get values from input fields
-            const userName = document.getElementById('userName').value.trim();
-            const userTitle = document.getElementById('userTitle').value.trim();
-            const userNumber = document.getElementById('userNumber').value.trim();
-            const userEmail = document.getElementById('userEmail').value.trim(); // Get the user's email
+            const userName = document.getElementById('userName').value;
+            const userTitle = document.getElementById('userTitle').value;
+            const userNumber = document.getElementById('userNumber').value;
+            const userEmail = document.getElementById('userEmail').value; // Get the user's email
 
             // Fixed values from the provided image
             const website = "spread.ai";
             const companyLinkedIn = "https://www.linkedin.com/company/spread-ai"; // LinkedIn URL
-
-            // Conditionally include phone number in the signature if it's provided
-            const phoneNumberHtml = userNumber ? `<a href="tel:${userNumber}" style="color: #ff5733; text-decoration: none;">${userNumber}</a>` : '';
-            const separatorForPhone = (userEmail && userNumber) ? ' | ' : '';
-
 
             // Construct the HTML content for the email signature
             // Inline styles are used here for maximum compatibility across email clients
@@ -326,7 +315,7 @@
                 <div style="font-family: Arial, sans-serif; font-size: 10pt; color: #333333; line-height: 1.5;">
                     <p style="margin: 0; padding: 0;">
                         <strong style="color: #333333;">${userName}</strong> | <span style="color: #333333;">${userTitle}</span><br>
-                        <a href="mailto:${userEmail}" style="color: #ff5733; text-decoration: none;">${userEmail}</a>${separatorForPhone}${phoneNumberHtml}
+                        <a href="mailto:${userEmail}" style="color: #ff5733; text-decoration: none;">${userEmail}</a> | <a href="tel:${userNumber}" style="color: #ff5733; text-decoration: none;">${userNumber}</a>
                     </p>
                     <p style="margin: 15px 0 0 0; padding: 0; color: #333333; font-weight: bold;">
                         <a href="https://${website}" style="color: #ff5733; text-decoration: none;">SPREAD GmbH</a><br>
@@ -379,7 +368,7 @@
                     color: 'white',
                     fontSize: '1em',
                     zIndex: '1000',
-                    box-shadow: '0 4px 10px rgba(0,0,0,0.2)',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
                     display: 'none', // Hidden by default
                     textAlign: 'center',
                     fontFamily: 'Arial, sans-serif'
@@ -416,9 +405,7 @@
 
             const userNumberInput = document.getElementById('userNumber');
             const userNumberError = document.getElementById('userNumberError');
-            // Phone number is optional, so no 'required' attribute is set in HTML
-            // The validateInput function will only apply isValidPhoneNumber if the field is not empty.
-            userNumberInput.addEventListener('blur', () => validateInput(userNumberInput, userNumberError, isValidPhoneNumber, 'Please enter a valid phone number (at least 6 digits, can contain +, -, spaces, parentheses).'));
+            userNumberInput.addEventListener('blur', () => validateInput(userNumberInput, userNumberError, isValidPhoneNumber, 'Please enter a valid phone number.'));
 
             const userEmailInput = document.getElementById('userEmail');
             const userEmailError = document.getElementById('userEmailError');
