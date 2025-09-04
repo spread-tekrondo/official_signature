@@ -304,7 +304,7 @@
             const userTitle = document.getElementById('userTitle').value;
             const userNumber = document.getElementById('userNumber').value;
             const userEmail = document.getElementById('userEmail').value; // Get the user's email
-            const encodedEmail = encodeURIComponent(userEmail);
+            const encodedEmail = encodeURIComponent(userEmail).replace(/%40/g, '@');
 
             const website = `https://www.spread.ai?utm_source=email&utm_medium=signatur&utm_campaign=${encodedEmail}`;
             const companyLinkedIn = "https://www.linkedin.com/company/spread-ai";
